@@ -163,7 +163,7 @@ runs:
       shell: bash
       run: |
         git clone ${{ github.event.client_payload.url }}.git
-        gitfolder=$(echo "${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)"
+        gitfolder=$(echo "${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev")
         cd $gitfolder
         
         build_opt=("-H" "-p ${{ inputs.package }}" "-b ${{ inputs.branch }}")
