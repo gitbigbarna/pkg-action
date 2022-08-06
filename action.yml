@@ -165,9 +165,6 @@ runs:
         git clone ${{ github.event.client_payload.url }}.git
         gitfolder=$(echo "${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)"
         cd $gitfolder
-        pkgrelorg=$(grep pkgrel ${{ inputs.package }}/PKGBUILD | cut -d "=" -f2)
-        pkgrelnew=$(($pkgrelorg+1))
-        sed -i "/pkgrel=/s/=.*/=$pkgrelnew/" ${{ inputs.package }}/PKGBUILD
         
         build_opt=("-H" "-p ${{ inputs.package }}" "-b ${{ inputs.branch }}")
         [[ ! -z "${{ inputs.custom-repo }}" ]] && build_opt+=("-k ${{ inputs.custom-repo }}")
