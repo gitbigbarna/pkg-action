@@ -155,27 +155,25 @@ runs:
         #fi
         #sudo git clone ${source}
         
-    ### Tmate ##
-    #- name: Setup tmate session
-      #uses: mxschmitt/action-tmate@v3
+    ## Tmate ##
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
         
     - name: build package
       shell: bash
       run: |
         git clone ${{ github.event.client_payload.url }}.git
+        gitfolder=$(echo "${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)"
+        cd $gitfolder
         pkgrelorg=$(grep pkgrel ${{ inputs.package }}/PKGBUILD | cut -d "=" -f2)
         pkgrelnew=$(($pkgrelorg+1))
         sed -i "/pkgrel=/s/=.*/=$pkgrelnew/" ${{ inputs.package }}/PKGBUILD
         
-    ### Tmate ##
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3
-        
-        #build_opt=("-H" "-p ${{ inputs.package }}" "-b ${{ inputs.branch }}")
-        #[[ ! -z "${{ inputs.custom-repo }}" ]] && build_opt+=("-k ${{ inputs.custom-repo }}")
-        #[[ "${{ inputs.multilib }}" == "true" ]] && build_opt+=("-m")
-        #echo "cmd=chrootbuild ${build_opt[@]}"
-        #sudo chrootbuild ${build_opt[@]}
+        build_opt=("-H" "-p ${{ inputs.package }}" "-b ${{ inputs.branch }}")
+        [[ ! -z "${{ inputs.custom-repo }}" ]] && build_opt+=("-k ${{ inputs.custom-repo }}")
+        [[ "${{ inputs.multilib }}" == "true" ]] && build_opt+=("-m")
+        echo "cmd=chrootbuild ${build_opt[@]}"
+        sudo chrootbuild ${build_opt[@]}
         
     - name: sign package
       shell: bash -O extglob {0}
