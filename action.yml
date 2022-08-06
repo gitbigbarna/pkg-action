@@ -167,9 +167,6 @@ runs:
         echo $gitfolder
         cd $gitfolder
         
-    #- name: Setup tmate session
-    #  uses: mxschmitt/action-tmate@v3
-        
         build_opt=("-H" "-p ${{ inputs.package }}" "-b ${{ inputs.branch }}")
         [[ ! -z "${{ inputs.custom-repo }}" ]] && build_opt+=("-k ${{ inputs.custom-repo }}")
         [[ "${{ inputs.multilib }}" == "true" ]] && build_opt+=("-m")
