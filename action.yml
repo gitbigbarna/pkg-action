@@ -164,6 +164,9 @@ runs:
       run: |
         git clone ${{ github.event.client_payload.url }}.git
         gitfolder=$(echo "${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev")
+        gitfolder1=$(echo ${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)
+        echo $gitfolder
+        echo $gitfolder1
         #cd $gitfolder
         
     - name: Setup tmate session
