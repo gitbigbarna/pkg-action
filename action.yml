@@ -164,7 +164,7 @@ runs:
       shell: bash -O extglob {0}
       run: |      
         cat <(echo -e "${{ inputs.gpg-key }}") | gpg --batch --import &>/dev/null
-        echo $gitfolder
+        gitfolder=$(echo ${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)
         cd $gitfolder
         for p in $(find $PWD -maxdepth 1 -regex '.*\.pkg\.tar\.\(xz\|zst\)'); do
           gpg --pinentry-mode loopback --passphrase "${{ inputs.gpg-passphrase }}" --detach-sign ${p}
