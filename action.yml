@@ -152,7 +152,6 @@ runs:
       run: |
         git clone ${{ github.event.client_payload.url }}.git
         gitfolder=$(echo ${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)
-        echo $gitfolder
         cd $gitfolder
         
         build_opt=("-H" "-p ${{ inputs.package }}" "-b ${{ inputs.branch }}")
@@ -165,6 +164,8 @@ runs:
       shell: bash -O extglob {0}
       run: |      
         cat <(echo -e "${{ inputs.gpg-key }}") | gpg --batch --import &>/dev/null
+        echo $gitfolder
+        cd $gitfolder
         for p in $(find $PWD -maxdepth 1 -regex '.*\.pkg\.tar\.\(xz\|zst\)'); do
           gpg --pinentry-mode loopback --passphrase "${{ inputs.gpg-passphrase }}" --detach-sign ${p}
         done
