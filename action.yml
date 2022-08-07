@@ -145,24 +145,20 @@ runs:
       shell: bash
       run: |
         git clone ${{ github.event.client_payload.url }}.git
-        gitfolder=$(echo ${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)
+        gitfolder=$(find -type f -name PKGBUILD | sed 's/PKGBUILD//')
         cd $gitfolder
-    
-    ## Tmate ##
-    - name: Setup tmate session
-      uses: mxschmitt/action-tmate@v3   
-        
-        #build_opt=("-H" "-p ${{ inputs.package }}" "-b ${{ inputs.branch }}")
-        #[[ ! -z "${{ inputs.custom-repo }}" ]] && build_opt+=("-k ${{ inputs.custom-repo }}")
-        #[[ "${{ inputs.multilib }}" == "true" ]] && build_opt+=("-m")
-        #echo "cmd=chrootbuild ${build_opt[@]}"
-        #sudo chrootbuild ${build_opt[@]}
+
+        build_opt=("-H" "-p ." "-b ${{ inputs.branch }}")
+        [[ ! -z "${{ inputs.custom-repo }}" ]] && build_opt+=("-k ${{ inputs.custom-repo }}")
+        [[ "${{ inputs.multilib }}" == "true" ]] && build_opt+=("-m")
+        echo "cmd=chrootbuild ${build_opt[@]}"
+        sudo chrootbuild ${build_opt[@]}
         
     - name: sign package
       shell: bash -O extglob {0}
       run: |      
         cat <(echo -e "${{ inputs.gpg-key }}" | base64 --decode) | gpg --batch --import &>/dev/null
-        gitfolder=$(echo ${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)
+        gitfolder=$(find -type f -name PKGBUILD | sed 's/PKGBUILD//')
         cd $gitfolder
         for p in $(find $PWD -maxdepth 1 -regex '.*\.pkg\.tar\.\(xz\|zst\)'); do
           gpg --pinentry-mode loopback --passphrase "${{ inputs.gpg-passphrase }}" --detach-sign ${p}
