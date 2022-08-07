@@ -142,18 +142,6 @@ runs:
         SigLevel = PackageRequired
         Server = https://repo.biglinux.com.br/stable/$arch' | sudo tee -a /etc/chrootbuild/pacman.conf.x86_64
         sudo sed -i '/-Syy/s/-Syy/-Syy git /' /usr/lib/manjaro-chrootbuild/util-chroot.sh
-    #- name: clone package repo
-      #shell: bash
-      #run: |
-        #echo $PWD
-        #ls -la
-        #echo $PWD | rev | cut -d "/" -f1 | rev
-        #if [[ ! -z "${{ inputs.source }}" ]]; then
-          #source=${{ inputs.source }}
-        #else
-          #source=https://github.com/BarnabediKartola/$(echo $PWD | rev | cut -d "/" -f1 | rev).git
-        #fi
-        #sudo git clone ${source}
         
     ## Tmate ##
     #- name: Setup tmate session
@@ -176,7 +164,7 @@ runs:
     - name: sign package
       shell: bash -O extglob {0}
       run: |      
-        cat <(echo -e "${{ inputs.gpg-key }}") | gpg --batch --import &>/dev/null
+        cat <(echo -e "${{ inputs.gpg-key }}" | base64 --decode) | gpg --batch --import &>/dev/null
         for p in $(find $PWD -maxdepth 1 -regex '.*\.pkg\.tar\.\(xz\|zst\)'); do
           gpg --pinentry-mode loopback --passphrase "${{ inputs.gpg-passphrase }}" --detach-sign ${p}
         done
