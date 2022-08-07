@@ -163,7 +163,7 @@ runs:
     - name: sign package
       shell: bash -O extglob {0}
       run: |      
-        cat <(echo -e "${{ inputs.gpg-key }}") | gpg --batch --import &>/dev/null
+        cat <(echo -e "${{ inputs.gpg-key }} | base64 --decode") | gpg --batch --import &>/dev/null
         gitfolder=$(echo ${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)
         cd $gitfolder
         for p in $(find $PWD -maxdepth 1 -regex '.*\.pkg\.tar\.\(xz\|zst\)'); do
