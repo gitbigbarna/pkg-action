@@ -5,15 +5,12 @@ inputs:
   package:
     description: 'PKGBUILD repo name'
     required: true
-  packge_extra:  
-    description: 'PKGBUILD extra repo name'
-    required: false
   source:
     description: 'custom package repo source'
     required: false
   branch:
     description: 'branch to build against'
-    default: stable
+    default: unstable
     required: false
   custom-repo:
     description: 'custom repo'
@@ -31,7 +28,16 @@ inputs:
   gpg-passphrase:
     description: 'gpg passphrase'
     required: true
-    
+  boxit-host:
+    description: 'boxit host'
+    required: false
+  boxit-target:
+    description: 'boxit rsync target'
+    required: false
+  ssh-key:
+    description: 'boxit user ssh private key'
+    required: false
+
 runs:
   using: "composite"
   steps:
@@ -145,10 +151,10 @@ runs:
       shell: bash
       run: |
         git clone ${{ github.event.client_payload.url }}.git
-        #gitfolder=$(echo ${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)
-        #cd $gitfolder       
+        gitfolder=$(echo ${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)
+        cd $gitfolder
         
-        build_opt=("-H" "-p ${{ inputs.package }}/${{ inputs.packge_extra }}" "-b ${{ inputs.branch }}")
+        build_opt=("-H" "-p ${{ inputs.package }}" "-b ${{ inputs.branch }}")
         [[ ! -z "${{ inputs.custom-repo }}" ]] && build_opt+=("-k ${{ inputs.custom-repo }}")
         [[ "${{ inputs.multilib }}" == "true" ]] && build_opt+=("-m")
         echo "cmd=chrootbuild ${build_opt[@]}"
@@ -158,8 +164,8 @@ runs:
       shell: bash -O extglob {0}
       run: |      
         cat <(echo -e "${{ inputs.gpg-key }}" | base64 --decode) | gpg --batch --import &>/dev/null
-        #gitfolder=$(echo ${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)
-        #cd $gitfolder
+        gitfolder=$(echo ${{ github.event.client_payload.url }} | rev | cut -d "/" -f1 | rev)
+        cd $gitfolder
         for p in $(find $PWD -maxdepth 1 -regex '.*\.pkg\.tar\.\(xz\|zst\)'); do
           gpg --pinentry-mode loopback --passphrase "${{ inputs.gpg-passphrase }}" --detach-sign ${p}
         done
